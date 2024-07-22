@@ -1,66 +1,20 @@
-## Foundry
+## Staking IRA rules
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+### Rule 1 : Supply dedicated to rewards
 
-Foundry consists of:
+12% of the total supply of IRA Token will be dedicated to staking
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
 
-## Documentation
+### Rule 2 : Reward rates
 
-https://book.getfoundry.sh/
+- **Rate 1** : For a duration lock of 3 months, the reward rate will be 6%
+- **Rate 2** : For a duration lock of 6 months, the reward rate will be 9%
+- **Rate 3** : For a duration lock of 12 months, the reward rate will be 12%
 
-## Usage
 
-### Build
+### Rule 3 
 
-```shell
-$ forge build
-```
+The rates above can be dynamically modified to anticipate lack or excess liquidity of reward supply.
+Moreover, we would like to modify these rates for staker that interacts with our DAO
 
-### Test
 
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```

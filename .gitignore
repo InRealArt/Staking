@@ -12,3 +12,15 @@ docs/
 
 # Dotenv file
 .env
+
+# History files
+.history
+
+# VS Code settings
+settings.json
+
+# ABI (generated)
+/abi
+
+# Broadcast 
+/broadcast/*
