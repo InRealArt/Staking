@@ -41,4 +41,5 @@ make deployIraStaking
 
 ## TODOS
 
-Use ERC1363 instead of ERC20
+1) Use ERC1363 instead of ERC20 for IRA token
+2) Use correctly Pausable in the staking SC
