@@ -15,12 +15,14 @@
 ### Rule 3 
 
 The rates above can be dynamically modified to anticipate lack or excess liquidity of reward supply.
-Moreover, we would like to modify these rates for staker that interacts with our DAO
+Moreover, we would like to modify these rates for staker that interacts with our DAO.
+<br>
 
 
-## Deployment 
+## Deployment 
 
-### Deploy IRA Token 
+### Deploy IRA Token 
+
 
 Execute the command : 
 
@@ -28,7 +30,8 @@ Execute the command :
 make deployIraToken
 ```
 
-### Deploy IRA Staking smart contract
+
+### Deploy IRA Staking smart contract
 
 Execute the command : 
 
