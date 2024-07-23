@@ -18,6 +18,24 @@ The rates above can be dynamically modified to anticipate lack or excess liquidi
 Moreover, we would like to modify these rates for staker that interacts with our DAO
 
 
+## Deployment 
+
+### Deploy IRA Token 
+
+Execute the command : 
+
+```sh
+make deployIraToken
+```
+
+### Deploy IRA Staking smart contract
+
+Execute the command : 
+
+```sh
+make deployIraStaking
+```
+
 ## TODOS
 
 Use ERC1363 instead of ERC20
