@@ -18,3 +18,6 @@ The rates above can be dynamically modified to anticipate lack or excess liquidi
 Moreover, we would like to modify these rates for staker that interacts with our DAO
 
 
+## TODOS
+
+Use ERC1363 instead of ERC20
