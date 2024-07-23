@@ -185,8 +185,11 @@ contract IraStaking is Ownable, Pausable {
 
             // Calculate rewards for this staking deposit. 
             totalRewards += (amountStaked * hourlyRate * stakingDurationInHours) / (10**DECIMALS_PERCENTAGE);    
+            uint amountClaimed = s_amountRewardClaimedBy[msg.sender][i];
+            //We substract the amount already claimed by the user
+            totalRewards -= amountClaimed;
         }
-
+        
         totalRewards = totalRewards / (10**DECIMALS_HOURLY_REWARD_RATE);
         return totalRewards; // Return total rewards earned        
     }
