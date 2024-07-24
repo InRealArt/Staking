@@ -9,10 +9,10 @@ contract DeployIraToken is Script {
 
     string private tokenName = 'InRealArt';
     string private tokenSymbol = 'IRA';
-
-     function run() external returns (IraToken) {
+    
+     function run(address tokenOwner) external returns (IraToken) {
         vm.startBroadcast();
-        IraToken iraToken = new IraToken(tokenName, tokenSymbol);
+        IraToken iraToken = new IraToken(tokenOwner);
         vm.stopBroadcast();
         return iraToken;
     }

@@ -3,13 +3,35 @@ pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
 import {IraStaking} from "../src/IraStaking.sol";
+import {IraToken} from "../src/IraToken.sol";
+import {DeployIraStaking} from "../script/DeployIraStaking.s.sol";
 
 contract IraStakingTest is Test {
     
+    IraToken iraToken;
+    DeployIraStaking deployIraStaking;
+    address IRA_TOKEN_OWNER = makeAddr('IRA_TOKEN_OWNER');
     address STAKER1 = makeAddr('STAKER1');
     address STAKER2 = makeAddr('STAKER2');
+    address REWARDER = makeAddr('REWARDER');
 
     function setUp() public {
+        iraToken = new IraToken(IRA_TOKEN_OWNER);
+        deployIraStaking = new DeployIraStaking();
+        deployIraStaking.run(address(iraToken), address(iraToken), REWARDER );
+    }
+
+    /**
+     * @dev Test that the total supply is correct
+     */
+    function testIraTokenTotalSupply() public {
+
+    }
+
+    /**
+     * @dev Test that the balance of IRA tokens of the owner is correct
+     */
+    function testBalanceOfIraTokenOwner() public {
 
     }
 
