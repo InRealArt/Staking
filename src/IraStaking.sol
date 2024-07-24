@@ -7,57 +7,8 @@ import {ERC20} from "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import {SafeERC20} from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {Pausable} from "openzeppelin-contracts/contracts/utils/Pausable.sol";
-
-/**
- * @dev error throws when the balance of staker is not enough.
- */
-error BalanceStakingTokenError();
-
-/**
- * @dev error throws when the balance of the smart contract is too low
- */
-error BalanceSmartContractError();
-
-/**
- * @dev error throws when the staking deposit index does not work
- */
-error IndexStakingDepositError();
-
-/**
- * @dev error throws when the address is null
- */
-error AddressZeroError();
-
-/**
- * @dev error throws when the staker wants to unstake before the minimal amount of months
- */
-error UnstakeError();
-
-/**
- * @dev error throws when the staker wants to claim rewards before the minimal amount of months
- */
-error ClaimError();
-
-/**
- * @dev error throws when the staker wants to unstake an amount greater than he staked
- */
-error AmountToUnstakeTooHighError();
-
-/**
- * @dev event emit when staker deposit amount to stake
- */
-event RewardTokenStaked(address indexed staker, uint indexed amount);
-
-/**
- * @dev event emit when staker claims his reward on the specific element of staking array 
- */
-event RewardTokenClaimed(address indexed staker, uint16 indexed _indexStakingDate, uint indexed rewardAmountClaimed);
-
-/**
- * @dev event emit when staker unstakes an amount of staking tokens on the specific element of staking array 
- */
-event RewardTokenUnstaked(address indexed staker, uint16 indexed _indexStakingDate, uint indexed tokenAmountUnstaked);
-
+import {AddressZeroError, AmountToUnstakeTooHighError, BalanceSmartContractError, BalanceStakingTokenError, ClaimError, IndexStakingDepositError, UnstakeError} from "./IraStakingErrors.sol";
+import {RewardTokenStaked, RewardTokenClaimed, RewardTokenUnstaked} from "./IraStakingEvents.sol";
 
 contract IraStaking is Ownable, Pausable {
 
@@ -97,6 +48,7 @@ contract IraStaking is Ownable, Pausable {
      * @param _rewarder : address of rewarder that will send rewards to stakers
      */
     constructor(address _stakingToken, address _rewardToken, address _rewarder) Ownable(msg.sender) payable {
+        if (_stakingToken == address(0) || _rewardToken == address(0) || _rewarder == address(0)) revert AddressZeroError();
         s_stakingToken = IERC20(_stakingToken);
         s_rewardToken = IERC20(_rewardToken);
         s_rewarder = _rewarder;
@@ -142,7 +94,7 @@ contract IraStaking is Ownable, Pausable {
      * @dev Unstake a certain amount in the specific element of the array of staking
      * Reverts tx if the staking period is under 3 Months
      */
-    function unstake(uint16 _indexStakingDate, uint _amountToUnstake) external {
+    function unstake(uint16 _indexStakingDate, uint _amountToUnstake) external whenNotPaused() {
         uint[] storage stakingDates = s_stakingDatesOf[msg.sender];
         uint stakingDate = stakingDates[_indexStakingDate];
         uint stakingDurationInSeconds = (block.timestamp - stakingDate); 
@@ -226,7 +178,7 @@ contract IraStaking is Ownable, Pausable {
     /**
      * @dev Enables the owner of the SC to withdraw amount of staking token
      */
-    function withdraw(address _to, uint _amount) external onlyOwner() {
+    function withdraw(address _to, uint _amount) external onlyOwner() whenNotPaused() {
         if (s_stakingToken.balanceOf(address(this)) < _amount) revert BalanceSmartContractError();
         if (_to == address(0)) revert AddressZeroError();
         s_stakingToken.transfer(_to, _amount);
@@ -235,7 +187,7 @@ contract IraStaking is Ownable, Pausable {
     /**
      * @dev Claim Reward 
      */
-    function claimReward(uint16 _indexStakingDate) external {
+    function claimReward(uint16 _indexStakingDate) external whenNotPaused() {
         uint[] storage stakingDates = s_stakingDatesOf[msg.sender];
         if (_indexStakingDate > stakingDates.length) revert IndexStakingDepositError();
         uint stakingDate = stakingDates[_indexStakingDate];
