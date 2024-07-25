@@ -17,3 +17,8 @@ event RewardTokenClaimed(address indexed staker, uint16 indexed _indexStakingDat
  * @dev event emit when staker unstakes an amount of staking tokens on the specific element of staking array 
  */
 event RewardTokenUnstaked(address indexed staker, uint16 indexed _indexStakingDate, uint indexed tokenAmountUnstaked);
+
+/**
+ * @dev event emit when staker unstakes an amount of staking tokens on the specific element of staking array 
+ */
+event Withdraw(address indexed withdrawer, address indexed receiver, uint indexed withdrawAmount);

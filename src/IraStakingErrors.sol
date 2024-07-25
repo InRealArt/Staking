@@ -12,6 +12,11 @@ error AddressZeroError();
 error AmountToUnstakeTooHighError();
 
 /**
+ * @dev error throws when the staker wants to stake a null amount 
+ */
+error AmountStakedZeroError();
+
+/**
  * @dev error throws when the balance of the smart contract is too low
  */
 error BalanceSmartContractError();
@@ -25,6 +30,11 @@ error BalanceStakingTokenError();
  * @dev error throws when the staker wants to claim rewards before the minimal amount of months
  */
 error ClaimError();
+
+/**
+ * @dev error throws when the index of staking array is out of range
+ */
+error IndexStakingOutsideRangeError();
 
 /**
  * @dev error throws when the staking deposit index does not work

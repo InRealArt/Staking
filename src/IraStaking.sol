@@ -7,10 +7,11 @@ import {ERC20} from "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import {SafeERC20} from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {Pausable} from "openzeppelin-contracts/contracts/utils/Pausable.sol";
-import {AddressZeroError, AmountToUnstakeTooHighError, BalanceSmartContractError, BalanceStakingTokenError, ClaimError, IndexStakingDepositError, UnstakeError} from "./IraStakingErrors.sol";
-import {RewardTokenStaked, RewardTokenClaimed, RewardTokenUnstaked} from "./IraStakingEvents.sol";
+import {ReentrancyGuard} from "openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
+import {AddressZeroError, AmountStakedZeroError, AmountToUnstakeTooHighError, BalanceSmartContractError, BalanceStakingTokenError, ClaimError, IndexStakingOutsideRangeError, IndexStakingDepositError, UnstakeError} from "./IraStakingErrors.sol";
+import {RewardTokenStaked, RewardTokenClaimed, RewardTokenUnstaked, Withdraw} from "./IraStakingEvents.sol";
 
-contract IraStaking is Ownable, Pausable {
+contract IraStaking is Ownable, Pausable, ReentrancyGuard {
 
     using SafeERC20 for IERC20;
     IERC20 private immutable s_stakingToken;
@@ -79,6 +80,7 @@ contract IraStaking is Ownable, Pausable {
      */
     function stake(uint _amountStaked) external {
         if (s_stakingToken.balanceOf(msg.sender) == 0) revert BalanceStakingTokenError();
+        if (_amountStaked == 0) revert AmountStakedZeroError();
 
         //Store the staked amount by its address and the datetime of staking
         s_amountStakedBy[msg.sender][block.timestamp] = _amountStaked; 
@@ -94,8 +96,9 @@ contract IraStaking is Ownable, Pausable {
      * @dev Unstake a certain amount in the specific element of the array of staking
      * Reverts tx if the staking period is under 3 Months
      */
-    function unstake(uint16 _indexStakingDate, uint _amountToUnstake) external whenNotPaused() {
+    function unstake(uint16 _indexStakingDate, uint _amountToUnstake) external whenNotPaused() nonReentrant() {
         uint[] storage stakingDates = s_stakingDatesOf[msg.sender];
+        if (_indexStakingDate > stakingDates.length) revert IndexStakingOutsideRangeError();
         uint stakingDate = stakingDates[_indexStakingDate];
         uint stakingDurationInSeconds = (block.timestamp - stakingDate); 
         if (stakingDurationInSeconds < THREE_MONTHS) {
@@ -181,13 +184,15 @@ contract IraStaking is Ownable, Pausable {
     function withdraw(address _to, uint _amount) external onlyOwner() whenNotPaused() {
         if (s_stakingToken.balanceOf(address(this)) < _amount) revert BalanceSmartContractError();
         if (_to == address(0)) revert AddressZeroError();
-        s_stakingToken.transfer(_to, _amount);
+        IERC20(s_stakingToken).safeTransfer(_to, _amount);
+
+        emit Withdraw(msg.sender, _to, _amount);
     }
 
     /**
      * @dev Claim Reward 
      */
-    function claimReward(uint16 _indexStakingDate) external whenNotPaused() {
+    function claimReward(uint16 _indexStakingDate) external whenNotPaused() nonReentrant() {
         uint[] storage stakingDates = s_stakingDatesOf[msg.sender];
         if (_indexStakingDate > stakingDates.length) revert IndexStakingDepositError();
         uint stakingDate = stakingDates[_indexStakingDate];
