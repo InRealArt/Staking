@@ -5,13 +5,14 @@ pragma solidity 0.8.26;
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {ERC20} from "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import {SafeERC20} from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Ownable2Step} from "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {Pausable} from "openzeppelin-contracts/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
 import {AddressZeroError, AmountStakedZeroError, AmountToUnstakeTooHighError, BalanceSmartContractError, BalanceStakingTokenError, ClaimError, IndexStakingOutsideRangeError, IndexStakingDepositError, UnstakeError} from "./IraStakingErrors.sol";
 import {RewardTokenStaked, RewardTokenClaimed, RewardTokenUnstaked, Withdraw} from "./IraStakingEvents.sol";
 
-contract IraStaking is Ownable, Pausable, ReentrancyGuard {
+contract IraStaking is Ownable2Step, Pausable, ReentrancyGuard {
 
     using SafeERC20 for IERC20;
     IERC20 private immutable s_stakingToken;
