@@ -87,8 +87,8 @@ contract IraStaking is Ownable2Step, Pausable, ReentrancyGuard {
         s_amountStakedBy[msg.sender][block.timestamp] = _amountStaked; 
         //Store the different datetilme of staking for a staker
         s_stakingDatesOf[msg.sender].push(block.timestamp);
-        //The rewarder must approve this smart contract for transfer
-        IERC20(s_stakingToken).safeTransferFrom(msg.sender, s_rewarder, _amountStaked);
+        //The staker must approve this smart contract for transfer
+        IERC20(s_stakingToken).safeTransferFrom(msg.sender, address(this), _amountStaked);
         
         emit RewardTokenStaked(msg.sender, _amountStaked);
     }
@@ -112,6 +112,13 @@ contract IraStaking is Ownable2Step, Pausable, ReentrancyGuard {
             revert AmountToUnstakeTooHighError();
         }
         
+        uint newAmountStaked = amountStaked - _amountToUnstake;
+
+        //Update amount stake for rewards calculation
+        s_amountStakedBy[msg.sender][stakingDate] = newAmountStaked;
+
+        IERC20(s_stakingToken).safeTransfer(msg.sender, _amountToUnstake);
+
         emit RewardTokenUnstaked(msg.sender, _indexStakingDate, _amountToUnstake);
     }
 
