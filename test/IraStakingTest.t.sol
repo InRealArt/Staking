@@ -10,6 +10,7 @@ contract IraStakingTest is Test {
     
     IraToken iraToken;
     DeployIraStaking deployIraStaking;
+    IraStaking iraStaking;
     address IRA_TOKEN_OWNER = makeAddr('IRA_TOKEN_OWNER');
     address STAKER1 = makeAddr('STAKER1');
     address STAKER2 = makeAddr('STAKER2');
@@ -18,7 +19,7 @@ contract IraStakingTest is Test {
     function setUp() public {
         iraToken = new IraToken(IRA_TOKEN_OWNER);
         deployIraStaking = new DeployIraStaking();
-        deployIraStaking.run(address(iraToken), address(iraToken), REWARDER );
+        iraStaking = deployIraStaking.run(address(iraToken), address(iraToken), REWARDER );
     }
 
     /**
@@ -36,10 +37,30 @@ contract IraStakingTest is Test {
     }
 
     /**
+     * @dev Test that the balance of IRA tokens of the owner is correct
+     */
+    function testBalanceOfStakerAfterOwnerIraSending() public {
+        vm.startPrank(IRA_TOKEN_OWNER);
+        iraToken.transfer(STAKER1, 1000000000000);
+        vm.stopPrank();
+        console.log('BALANCE OF STAKER 1', iraToken.balanceOf(STAKER1));
+        assertEq(iraToken.balanceOf(STAKER1), 1000000000000);
+    }
+
+    /**
      * @dev Test a staker can not stake staking tokens if he does not own at least the amount of tokens 
      * he wants to stake
      */
     function testAStakerCannotStakeIfHeDoNotOwnAnyStakingToken() public {
+
+        vm.startPrank(IRA_TOKEN_OWNER);
+        iraToken.transfer(STAKER1, 1000000000000);
+        vm.stopPrank();
+
+        vm.startPrank(STAKER1);
+        iraToken.approve(address(iraStaking), 1000000000000);
+        iraStaking.stake(1000000000000);
+        vm.stopPrank();
 
     }
 

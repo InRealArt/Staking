@@ -13,7 +13,7 @@ contract IraToken is ERC20, ERC20Pausable, Ownable {
     {
         if (tokenOwner == address(0)) revert AddressZeroError();
         uint totalSupply = 100000000 * 10 ** decimals();
-        _mint(msg.sender, totalSupply);
+        _mint(tokenOwner, totalSupply);
     }
 
     function pause() public onlyOwner {
