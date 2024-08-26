@@ -259,8 +259,8 @@ contract IraStaking is Ownable2Step, Pausable, ReentrancyGuard {
     /**
      * @dev Getter for 'amountStakedBy' giving staker address
      */
-    function getAmountStakedBy(address _staker) public view returns (uint[] memory){
-        return s_stakingDatesOf[_staker];
+    function getAmountStakedBy(address _staker, uint256 _stakingDate) public view returns (uint){
+        return s_amountStakedBy[_staker][_stakingDate];
     }
 
     /**
