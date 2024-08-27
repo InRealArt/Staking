@@ -9,7 +9,7 @@ import {Ownable2Step} from "openzeppelin-contracts/contracts/access/Ownable2Step
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {Pausable} from "openzeppelin-contracts/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
-import {AddressZeroError, AmountStakedZeroError, AmountToUnstakeTooHighError, BalanceSmartContractError, BalanceStakingTokenError, ClaimError, IndexStakingOutsideRangeError, IndexStakingDepositError, UnstakeError} from "./IraStakingErrors.sol";
+import {AddressZeroError, AmountStakedZeroError, AmountToUnstakeTooHighError, BalanceSmartContractError, BalanceRewarderError, BalanceStakingTokenError, ClaimError, IndexStakingOutsideRangeError, IndexStakingDepositError, UnstakeError} from "./IraStakingErrors.sol";
 import {RewardTokenStaked, RewardTokenClaimed, RewardTokenUnstaked, Withdraw} from "./IraStakingEvents.sol";
 
 contract IraStaking is Ownable2Step, Pausable, ReentrancyGuard {
@@ -210,6 +210,8 @@ contract IraStaking is Ownable2Step, Pausable, ReentrancyGuard {
         }
 
         uint rewardAmountClaimed = calculateRewards(msg.sender, _indexStakingDate);
+        if (s_stakingToken.balanceOf(s_rewarder) < rewardAmountClaimed) revert BalanceRewarderError();
+
         s_amountRewardClaimedBy[msg.sender][stakingDate] = s_amountRewardClaimedBy[msg.sender][stakingDate] + rewardAmountClaimed;
 
         IERC20(s_rewardToken).safeTransferFrom(s_rewarder, msg.sender, rewardAmountClaimed);

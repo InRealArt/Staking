@@ -28,16 +28,40 @@ contract IraStakingTest is Test {
     }
 
     /**
+     * Test that when the IraStaking SC is deployed with a zero address for staking token
+     * It will revert with the appropriate error
+     */
+    function testIraStakingDeploymentStakingTokenCanNotBeNull() public {
+
+    }
+
+    /**
+     * Test that when the IraStaking SC is deployed with a zero address for Reward token
+     * It will revert with the appropriate error
+     */
+    function testIraStakingDeploymentRewardTokenCanNotBeNull() public {
+
+    }
+
+    /**
+     * Test that when the IraStaking SC is deployed with a zero address for rewarder address
+     * It will revert with the appropriate error
+     */
+    function testIraStakingDeploymentRewarderAddressCanNotBeNull() public {
+
+    }
+
+    /**
      * @dev Test that the total supply is correct
      */
-    function testIraTokenTotalSupply() public {
+    function testIraTokenTotalSupply() public view {
         assertEq(iraToken.totalSupply(), TOTAL_SUPPLY);
     }
 
     /**
      * @dev Test that the balance of IRA tokens of the owner is correct
      */
-    function testBalanceOfIraTokenOwner() public {
+    function testBalanceOfIraTokenOwner() public view{
         assertEq(iraToken.balanceOf(IRA_TOKEN_OWNER), TOTAL_SUPPLY);
     }
 
@@ -82,20 +106,25 @@ contract IraStakingTest is Test {
     /**
      * @dev Test balance of staking smart contact after staking
      * If The balance of the SC is X staking tokens so after a user stakes 10 tokens, the balance must be
-     * balance = X - 10 tokens
+     * balance = X + 10 tokens
+     * Test the function with 1 staker
      */
     function testAStakerCanStakeAndChecksmartContractBalanceAfterStaking()
         public
     {
-        vm.startPrank(IRA_TOKEN_OWNER);
-        iraToken.transfer(STAKER1, 10);
-        vm.stopPrank();
+        
+    }
 
-        vm.startPrank(STAKER1);
-        iraToken.approve(address(iraStaking), 10);
-        iraStaking.stake(10);
-        vm.stopPrank();
-        assertEq(iraToken.balanceOf(IRA_TOKEN_OWNER), TOTAL_SUPPLY - 10);
+    /**
+     * @dev Test balance of staking smart contact after staking
+     * If The balance of the SC is X staking tokens so after a user stakes 10 tokens and another user stake 5 tokens, the balance must be
+     * balance = X + 15 tokens
+     * So, Test the function with 2 stakers
+     */
+    function testAStakerCanStakeAndChecksmartContractBalanceAfterStaking2()
+        public
+    {
+        
     }
 
     /**
@@ -124,52 +153,116 @@ contract IraStakingTest is Test {
     }
 
     /**
-     * @dev Test state variables before staking
+     * @dev Do the same test than above but with 2 different staking dates.
+     * Exemple : A staker stake 1000 tokens now and 500 tokens tomorrow.
+     * Check that the mapping have the good values 
+     * (Use vm.warp)
      */
     function testStateVariablesBeforeStaking2() public {}
 
     /**
-     * @dev Test state variables before staking
+     * @dev Test balance of staker after staking.
+     * Normally if a staker owns 1000 tokens and stake 400 tokens, 
+     * after staking his balance must be 600 tokens.
+     * Check this
      */
-    function testStateVariablesBeforeStaking3() public {}
+    function testStakerBalanceAfterStaking() public {}
 
     /**
-     * @dev Test state variables before staking
+     * @dev Test that if a staker staked an amount of tokens at a specific date, 
+     * he can not claim his reward before 3 months. 
+     * Check that the SC revert with the appropriate error
      */
-    function testStateVariablesBeforeStaking4() public {}
+    function testStakerCanNotClaimBefore3Months() public {
+
+    }
 
     /**
-     * @dev Test state variables before staking
+     * @dev 
+     * Check that if a user owns 1000 tokens and wants to stake an amount greater than 1000, 
+     * it will revert with "BalanceStakingTokenError"
      */
-    function testStateVariablesBeforeStaking5() public {}
+    function testErrorOnStaking() public {
+
+    }
 
     /**
-     * @dev Test state variables after staking
+     * @dev 
+     * Check that if a user owns 1000 tokens and wants to stake an amount equal to 0, 
+     * it will revert with "AmountStakedZeroError"
      */
-    function testStateVariablesAfterStaking1() public {}
+    function testErrorOnStaking2() public {
+
+    }
 
     /**
-     * @dev Test state variables after staking
+     * @dev Do the following test. 
+     * A staker stakes 1000 tokens now.
+     * This will add 1 entry in the 2 mappings : s_amountStakedBy and s_stakingDatesOf
+     * Then he stakes another 500 tokens tomorrow. It will add others entries in these 2 mappings
+     * Check that 3 months after the 1st staking date, he can unstake his first amount (1000) but can not unstake the second amount (500)
+     * ==> Revert with "ClaimError" error
      */
-    function testStateVariablesAfterStaking2() public {}
+    function testStakerCanNotClaimBefore3Months2() public {
+        
+    }
+
 
     /**
-     * @dev Test state variables after staking
+     * @dev Test that if a staker claims his reward for an staking entry AND the rewarder does not own the appropriate amount of reward tokens, 
+     * it will revert with "BalanceRewarderError"
+     * 
      */
-    function testStateVariablesAfterStaking3() public {}
+    function testClaimingBalanceRewarderError() public {}
 
     /**
-     * @dev Test state variables after staking
+     * @dev Test that if a staker claims his reward for an staking entry, the calculated reward is added to his balance
+     * A prerequisite is that the 'rewarder' must owns reward tokens to perform that
      */
-    function testStateVariablesAfterStaking4() public {}
+    function testBalanceAfterClaimingRewards() public {}
 
     /**
-     * @dev Test state variables after staking
+     * @dev Test that if a staker claims his reward for an staking entry, the balance of the rewarder is decreased by the amount of calculated reward tokens
+     * A prerequisite is that the 'rewarder' must owns reward tokens to perform that
      */
-    function testStateVariablesAfterStaking5() public {}
+    function testBalanceAfterClaimingRewards2() public {}
 
     /**
-     * @dev Test state variables after staking
+     * @dev 
+     * Prerequisites : 
+     * 1) Rewarder must onws enough reward tokens
+     * 2) Staker can claim rewards so after at least 3 months of staking
+     * 
+     * Test that if a staker wants to claim his rewards, it will update the state variable mapping "s_amountRewardClaimedBy" with appropriate value
      */
-    function testDifferentStakingActions() public {}
+    function testStateVariablesAfterClaimingRewards1() public {}
+
+    /**
+     * @dev 
+     * Same test than above but with 2 claiming at 2 different times
+     * 
+     * Test that if a staker wants to claim his rewards, it will update the state variable mapping "s_amountRewardClaimedBy" with appropriate value
+     */
+    function testStateVariablesAfterClaimingRewards2() public {}
+
+    /**
+     * @dev When a staker stakes a specific amount of tokens, the Smart contract can compute an hourly rate of earning (based on the rules we defined)
+     * Test that after a staker claims his reward for a specific stalking entry the amount of rewards is correct according to this hourly rate
+     */
+    function testClaimingRewardIsCorrect() public {}
+
+     /**
+     * @dev Do the same test as above but with 1 claiming today and 1 claiming tomorrow.
+     * (The first claiming must reward the staker with a big amount and the 2nd claiming must reward the staker with a tiny amount because he already claimed once)
+     * Check that claim rewards are with right calculated values
+     *  
+     */
+    function testClaimingRewardIsCorrect3() public {}
+
+     /**
+     * @dev Do the same test as above by checkiing the state variable mapping "s_amountRewardClaimedBy" with appropriate value
+     *  
+     */
+    function testClaimingRewardIsCorrect2() public {}
+
 }

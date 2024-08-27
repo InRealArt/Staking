@@ -27,6 +27,11 @@ error BalanceSmartContractError();
 error BalanceStakingTokenError();
 
 /**
+ * @dev error throws when the balance of the rewarder is not enough.
+ */
+error BalanceRewarderError();
+
+/**
  * @dev error throws when the staker wants to claim rewards before the minimal amount of months
  */
 error ClaimError();
