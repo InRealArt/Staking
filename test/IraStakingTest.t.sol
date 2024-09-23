@@ -102,10 +102,15 @@ contract IraStakingTest is Test {
      * If The balance of the SC is X staking tokens so after a user stakes 10 tokens, the balance must be
      * balance = X + 10 tokens
      * Test the function with 1 staker
+     * Nino : ton test est faux. Faire des tests sur le token IRA n'a pas de sens ici.
+     * On cherche à tester le smart contract de staking donc on s'en fiche de la supply du token IRA. On le fera lorsqu'on fera des TU sur le samrtr contract du token.
+     * Dans ce test tu dois tester la balance du SC de staking selon la règle décrite. A corriger
+     *
      */
     function testAStakerCanStakeAndChecksmartContractBalanceAfterStaking()
         public
     {
+
         vm.startPrank(IRA_TOKEN_OWNER);
         iraToken.transfer(STAKER1, 10);
         vm.stopPrank();
@@ -114,7 +119,7 @@ contract IraStakingTest is Test {
         iraToken.approve(address(iraStaking), 10);
         iraStaking.stake(10);
         vm.stopPrank();
-        assertEq(iraToken.balanceOf(IRA_TOKEN_OWNER), TOTAL_SUPPLY - 10);
+        //assertEq(iraToken.balanceOf(IRA_TOKEN_OWNER), TOTAL_SUPPLY - 10);
     }
 
     /**
@@ -122,6 +127,8 @@ contract IraStakingTest is Test {
      * If The balance of the SC is X staking tokens so after a user stakes 10 tokens and another user stake 5 tokens, the balance must be
      * balance = X + 15 tokens
      * So, Test the function with 2 stakers
+     * Nino : Idem que le test précédent. Tu testes la supply du token IRA or on cherche à tester le SC de staking selon la règle que j'ai écrite.
+     * A corriger
      */
     function testAStakerCanStakeAndChecksmartContractBalanceAfterStaking2()
         public
@@ -140,7 +147,7 @@ contract IraStakingTest is Test {
         iraToken.approve(address(iraStaking), 5);
         iraStaking.stake(5);
         vm.stopPrank();
-        assertEq(iraToken.balanceOf(IRA_TOKEN_OWNER), TOTAL_SUPPLY - 15);
+        //assertEq(iraToken.balanceOf(IRA_TOKEN_OWNER), TOTAL_SUPPLY - 15);
     }
 
     /**
@@ -173,6 +180,8 @@ contract IraStakingTest is Test {
      * Exemple : A staker stake 1000 tokens now and 500 tokens tomorrow.
      * Check that the mapping have the good values
      * (Use vm.warp)
+     * Nino : Nomme bien les variables : "OneDayInTheFuture" ajoute "2 days" à block.timestamp donc c'est "TwoDaysInTheFuture" plutot
+     * A corriger
      */
     function testStateVariablesBeforeStaking2() public {
         vm.startPrank(IRA_TOKEN_OWNER);
