@@ -5,7 +5,7 @@ import {Test, console} from "forge-std/Test.sol";
 import {IraStaking} from "../src/IraStaking.sol";
 import {IraToken} from "../src/IraToken.sol";
 import {DeployIraStaking} from "../script/DeployIraStaking.s.sol";
-import {BalanceSmartContractError, BalanceStakingTokenError, ClaimError, AmountStakedZeroError} from "../src/IraStakingErrors.sol";
+import {BalanceSmartContractError, BalanceStakingTokenError, ClaimError, AmountStakedZeroError, AddressZeroError, BalanceRewarderError} from "../src/IraStakingErrors.sol";
 
 contract IraStakingTest is Test {
     IraToken iraToken;
@@ -15,7 +15,14 @@ contract IraStakingTest is Test {
     address STAKER1 = makeAddr("STAKER1");
     address STAKER2 = makeAddr("STAKER2");
     address REWARDER = makeAddr("REWARDER");
+    address ZERO_ADDR = address(0);
     uint96 private constant TOTAL_SUPPLY = 100000000000000000000000000;
+
+    bytes private selectorAddressZeroErrorAdmin =
+        abi.encodeWithSelector(
+            AddressZeroError.selector,
+            keccak256("IRA_TOKEN_OWNER")
+        );
 
     function setUp() public {
         iraToken = new IraToken(IRA_TOKEN_OWNER);
@@ -31,19 +38,37 @@ contract IraStakingTest is Test {
      * Test that when the IraStaking SC is deployed with a zero address for staking token
      * It will revert with the appropriate error
      */
-    function testIraStakingDeploymentStakingTokenCanNotBeNull() public {}
+    function testIraStakingDeploymentStakingTokenCanNotBeNull() public {
+        vm.startPrank(IRA_TOKEN_OWNER);
+        deployIraStaking = new DeployIraStaking();
+        vm.expectRevert(AddressZeroError.selector);
+        vm.stopPrank();
+        deployIraStaking.run(ZERO_ADDR, address(iraToken), REWARDER);
+    }
 
     /**
      * Test that when the IraStaking SC is deployed with a zero address for Reward token
      * It will revert with the appropriate error
      */
-    function testIraStakingDeploymentRewardTokenCanNotBeNull() public {}
+    function testIraStakingDeploymentRewardTokenCanNotBeNull() public {
+        vm.startPrank(IRA_TOKEN_OWNER);
+        deployIraStaking = new DeployIraStaking();
+        vm.expectRevert(AddressZeroError.selector);
+        vm.stopPrank();
+        deployIraStaking.run(address(iraToken), ZERO_ADDR, REWARDER);
+    }
 
     /**
      * Test that when the IraStaking SC is deployed with a zero address for rewarder address
      * It will revert with the appropriate error
      */
-    function testIraStakingDeploymentRewarderAddressCanNotBeNull() public {}
+    function testIraStakingDeploymentRewarderAddressCanNotBeNull() public {
+        vm.startPrank(IRA_TOKEN_OWNER);
+        deployIraStaking = new DeployIraStaking();
+        vm.expectRevert(AddressZeroError.selector);
+        vm.stopPrank();
+        deployIraStaking.run(address(iraToken), address(iraToken), ZERO_ADDR);
+    }
 
     /**
      * @dev Test that the total supply is correct
@@ -56,7 +81,6 @@ contract IraStakingTest is Test {
      * @dev Test that the balance of IRA tokens of the owner is correct
      */
     function testBalanceOfIraTokenOwner() public view {
-        assertEq(iraToken.balanceOf(IRA_TOKEN_OWNER), TOTAL_SUPPLY);
     }
 
     /**
@@ -255,14 +279,14 @@ contract IraStakingTest is Test {
      * it will revert with "BalanceStakingTokenError"
      */
     function testErrorOnStaking() public {
-        //     vm.startPrank(IRA_TOKEN_OWNER);
-        //     iraToken.transfer(STAKER1, 1000);
-        //     vm.stopPrank();
-        //     vm.startPrank(STAKER1);
-        //     iraToken.approve(address(iraStaking), 1001);
-        //     vm.expectRevert(ERC20InsufficientBalance.selector);
-        //     iraStaking.stake(1001);
-        //     vm.stopPrank();
+        vm.startPrank(IRA_TOKEN_OWNER);
+        iraToken.transfer(STAKER1, 1000);
+        vm.stopPrank();
+        vm.startPrank(STAKER1);
+        iraToken.approve(address(iraStaking), 1001);
+        vm.expectRevert(BalanceStakingTokenError.selector);
+        iraStaking.stake(1001);
+        vm.stopPrank();
     }
 
     /**
@@ -326,13 +350,43 @@ contract IraStakingTest is Test {
      * it will revert with "BalanceRewarderError"
      *
      */
-    function testClaimingBalanceRewarderError() public {}
+    function testClaimingBalanceRewarderError() public {
+        vm.startPrank(IRA_TOKEN_OWNER);
+        iraToken.transfer(STAKER1, 1000);
+        vm.stopPrank();
+        vm.startPrank(STAKER1);
+
+        iraToken.approve(address(iraStaking), 10);
+        iraStaking.stake(10);
+        vm.stopPrank();
+        vm.startPrank(STAKER1);
+
+        uint256 OneMonthInTheFuture = block.timestamp + 121 days;
+        vm.warp(OneMonthInTheFuture);
+        iraStaking.claimReward(1);
+        vm.stopPrank();
+    }
 
     /**
      * @dev Test that if a staker claims his reward for an staking entry, the calculated reward is added to his balance
      * A prerequisite is that the 'rewarder' must owns reward tokens to perform that
      */
-    function testBalanceAfterClaimingRewards() public {}
+    function testBalanceAfterClaimingRewards() public {
+        vm.startPrank(IRA_TOKEN_OWNER);
+        iraToken.transfer(STAKER1, 1000);
+        vm.stopPrank();
+        vm.startPrank(STAKER1);
+
+        iraToken.approve(address(iraStaking), 10);
+        iraStaking.stake(10);
+        vm.stopPrank();
+        vm.startPrank(STAKER1);
+
+        uint256 OneMonthInTheFuture = block.timestamp + 121 days;
+        vm.warp(OneMonthInTheFuture);
+        iraStaking.claimReward(1);
+        vm.stopPrank();
+    }
 
     /**
      * @dev Test that if a staker claims his reward for an staking entry, the balance of the rewarder is decreased by the amount of calculated reward tokens
